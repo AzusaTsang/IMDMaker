@@ -1,0 +1,475 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  AlphaBlendValue = 100
+  BorderStyle = bsDialog
+  Caption = 'imd Maker 2s'
+  ClientHeight = 720
+  ClientWidth = 705
+  Color = clBtnFace
+  DoubleBuffered = True
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 106
+  TextHeight = 14
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 449
+    Height = 667
+    BevelOuter = bvNone
+    TabOrder = 0
+    object Label1: TLabel
+      Left = 228
+      Top = 14
+      Width = 75
+      Height = 20
+      Caption = #27468#26354#26102#38388#65306
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label2: TLabel
+      Left = 254
+      Top = 44
+      Width = 48
+      Height = 20
+      Caption = 'BPM'#65306
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+    end
+    object BMSInfoMemo: TMemo
+      Left = 504
+      Top = 8
+      Width = 185
+      Height = 89
+      ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+      Lines.Strings = (
+        'BMSInfoMemo')
+      ScrollBars = ssBoth
+      TabOrder = 8
+      Visible = False
+    end
+    object BPMTxt: TEdit
+      Left = 304
+      Top = 41
+      Width = 128
+      Height = 24
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -10
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+      ParentFont = False
+      TabOrder = 3
+    end
+    object Button2: TButton
+      Left = 125
+      Top = 625
+      Width = 104
+      Height = 25
+      Caption = #22312'ivm 2'#20013#32534#36753
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 7
+    end
+    object IsChangeBPM: TCheckBox
+      Left = 352
+      Top = 66
+      Width = 80
+      Height = 25
+      Caption = 'BPM'#21464#36895
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
+      OnClick = IsChangeBPMClick
+    end
+    object KeyGrid: TStringGrid
+      Left = 15
+      Top = 95
+      Width = 417
+      Height = 523
+      Hint = #38754#26465#13#10'0='#21333#38190#13#10'6='#24320#22987#13#10'2='#25345#32493#13#10'10='#32467#26463#13#10#13#10#38190#22411#13#10'0='#25955#28857#13#10'1='#28369#38190#13#10'2='#38754#26465
+      ColCount = 6
+      RowCount = 2
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goColSizing, goEditing, goThumbTracking]
+      ParentFont = False
+      ParentShowHint = False
+      PopupMenu = KeyMenu
+      ShowHint = True
+      TabOrder = 5
+    end
+    object OpenBtn: TButton
+      Left = 15
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = #25171#24320'(&O)'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnClick = OpenBtnClick
+    end
+    object OpenInExcel: TButton
+      Left = 15
+      Top = 625
+      Width = 104
+      Height = 25
+      Caption = #22312'Excel'#20013#32534#36753
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 6
+      OnClick = OpenInExcelClick
+    end
+    object SaveBtn: TButton
+      Left = 15
+      Top = 39
+      Width = 75
+      Height = 25
+      Caption = #20445#23384'(&S)'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      PopupMenu = SaveAsMenu
+      TabOrder = 1
+      OnClick = SaveBtnClick
+    end
+    object TimeTxt: TEdit
+      Left = 304
+      Top = 11
+      Width = 128
+      Height = 24
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -10
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+      ParentFont = False
+      TabOrder = 2
+      OnChange = TimeTxtChange
+    end
+    object HideHint: TCheckBox
+      Left = 360
+      Top = 628
+      Width = 72
+      Height = 17
+      Caption = #38544#34255#25552#31034
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 9
+      OnClick = HideHintClick
+    end
+    object OpenConnecter: TButton
+      Left = 235
+      Top = 625
+      Width = 86
+      Height = 25
+      Caption = #38754#26465#36830#25509#22120
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 10
+      OnClick = OpenConnecterClick
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Top = 670
+    Width = 537
+    Height = 59
+    BevelOuter = bvNone
+    TabOrder = 1
+    object Label3: TLabel
+      Left = 15
+      Top = 6
+      Width = 398
+      Height = 28
+      Caption = #35831#21247#25163#21160#20851#38381'Excel'#65292#27442#24819#36864#20986'Excel'#65292#35831#25353
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+    end
+    object LoadProcess: TShape
+      Left = 15
+      Top = 44
+      Width = 509
+      Height = 7
+      Brush.Color = clLime
+      Pen.Style = psClear
+      Pen.Width = 0
+    end
+    object ReturnToiM: TButton
+      Left = 417
+      Top = 3
+      Width = 107
+      Height = 35
+      Caption = #36820#22238'imd Maker'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnClick = ReturnToiMClick
+    end
+  end
+  object ExcelMemo: TMemo
+    Left = 695
+    Top = 373
+    Width = 353
+    Height = 411
+    ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+    Lines.Strings = (
+      'ExcelMemo')
+    ScrollBars = ssBoth
+    TabOrder = 2
+    Visible = False
+  end
+  object Panel3: TPanel
+    Left = 448
+    Top = 0
+    Width = 257
+    Height = 664
+    BevelOuter = bvNone
+    TabOrder = 3
+    object CleanBPM: TButton
+      Left = 128
+      Top = 624
+      Width = 113
+      Height = 26
+      Caption = #28165#38500'BPM'#25968#25454
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnClick = CleanBPMClick
+    end
+    object BPMGrid: TStringGrid
+      Left = 16
+      Top = 95
+      Width = 225
+      Height = 523
+      ColCount = 3
+      RowCount = 2
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goColSizing, goEditing, goThumbTracking]
+      ParentFont = False
+      TabOrder = 1
+      RowHeights = (
+        24
+        24)
+    end
+    object ChangedBPM: TEdit
+      Left = 16
+      Top = 64
+      Width = 141
+      Height = 25
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+      ParentFont = False
+      TabOrder = 2
+      Text = 'BPM'
+      OnEnter = ChangedBPMEnter
+      OnExit = ChangedBPMExit
+    end
+    object BPMEnd: TEdit
+      Left = 16
+      Top = 36
+      Width = 141
+      Height = 25
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+      ParentFont = False
+      TabOrder = 3
+      Text = #32467#26463#26102#38388
+      OnEnter = BPMEndEnter
+      OnExit = BPMEndExit
+    end
+    object BPMBegin: TEdit
+      Left = 16
+      Top = 8
+      Width = 141
+      Height = 25
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+      ParentFont = False
+      TabOrder = 4
+      Text = #24320#22987#26102#38388
+      OnEnter = BPMBeginEnter
+      OnExit = BPMBeginExit
+    end
+    object BPMChangeBtn: TButton
+      Left = 164
+      Top = 63
+      Width = 77
+      Height = 26
+      Caption = #28155#21152'BPM(&A)'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      OnClick = BPMChangeBtnClick
+    end
+  end
+  object OpenDialog: TOpenDialog
+    Filter = #35889#38754#25991#20214'|*.imd;*.bms'
+    Left = 88
+  end
+  object ShakeBPMBegin: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = ShakeBPMBeginTimer
+    Left = 528
+    Top = 8
+  end
+  object ShakeBPMEnd: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = ShakeBPMEndTimer
+    Left = 528
+    Top = 32
+  end
+  object ShakeChangedBPM: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = ShakeChangedBPMTimer
+    Left = 528
+    Top = 64
+  end
+  object SaveDialog: TSaveDialog
+    Filter = 'imd'#25991#20214'|*.imd'
+    Left = 88
+    Top = 40
+  end
+  object ChangeFormSize: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = ChangeFormSizeTimer
+    Left = 288
+    Top = 64
+  end
+  object ShakeTimeTxt: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = ShakeTimeTxtTimer
+    Left = 360
+    Top = 8
+  end
+  object ShakeBPMTxt: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = ShakeBPMTxtTimer
+    Left = 360
+    Top = 40
+  end
+  object KeyMenu: TPopupMenu
+    Left = 232
+    Top = 304
+    object AddAbove: TMenuItem
+      Caption = #22312#36873#20013#21333#20803#26684#19978#26041#22686#21152#19968#34892'(&U)'
+      OnClick = AddAboveClick
+    end
+    object AddBelow: TMenuItem
+      Caption = #22312#36873#20013#21333#20803#26684#19979#26041#22686#21152#19968#34892'(&B)'
+      OnClick = AddBelowClick
+    end
+    object DeleteLine: TMenuItem
+      Caption = #21024#38500#36873#20013#21333#20803#26684#25152#22312#34892'(&D)'
+      OnClick = DeleteLineClick
+    end
+    object CopyGrid: TMenuItem
+      Caption = #22797#21046#34920#26684'(&C)'
+      OnClick = CopyGridClick
+    end
+    object PasteGrid: TMenuItem
+      Caption = #28165#31354#24182#31896#36148#34920#26684'(&V)'
+      OnClick = PasteGridClick
+    end
+  end
+  object EnterExcelMode: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = EnterExcelModeTimer
+    Left = 344
+    Top = 569
+  end
+  object SaveAsMenu: TPopupMenu
+    Left = 168
+    Top = 40
+    object SaveAsBtn: TMenuItem
+      Caption = #21478#23384#20026'(&A)'
+      OnClick = SaveAsBtnClick
+    end
+  end
+end

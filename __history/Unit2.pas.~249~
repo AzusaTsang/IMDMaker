@@ -1,0 +1,795 @@
+unit Unit2;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ExtCtrls, Unit1,
+  pngimage, Vcl.StdCtrls;
+
+type
+  TForm2 = class(TForm)
+    KeyCanval: TImage;
+    BeginTimeLabel: TLabel;
+    EndTimeLabel: TLabel;
+    Background: TShape;
+    SpeedBar: TTrackBar;
+    PlayBtn: TButton;
+    PlayTimer: TTimer;
+    ShowedKey: TMemo;
+    TrackCountBar: TTrackBar;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    TimeLine: TScrollBar;
+    procedure DrawTime(BeginTime, EndTime: Integer);
+    procedure TimeLineChange(Sender: TObject);
+    procedure SpeedBarChange(Sender: TObject);
+    procedure PlayBtnClick(Sender: TObject);
+    procedure PlayTimerTimer(Sender: TObject);
+    procedure TrackCountBarChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure KeyCanvalMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    function AddSlide(sBegin, sEnd: Integer): Boolean;
+    procedure DeleteSlide(KeyNum: Integer);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+
+{$R *.dfm}
+
+const
+  ArrowLeft = False;
+  ArrowRight = True;
+  OverCanval = 150;
+
+var
+  TrackCount: Integer = 6;
+  KeyWidth, KeyHeight: Integer;
+
+procedure TForm2.DrawTime(BeginTime: Integer; EndTime: Integer);
+var
+  i, j, m: Integer;
+  kIsNoodle, kType, kTime, kTrack, kPara: Integer;
+
+  procedure DrawTapKey(Time, Track: Integer);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      LoadFromFile('Pic\key.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      // bHeight := Trunc(bWidth / 2.55);
+      bLeft := KeyWidth * Track;
+      bTop := Trunc((EndTime - Time) * (KeyCanval.Height /
+        (EndTime - BeginTime)));
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop, bLeft + KeyWidth,
+        bTop + KeyHeight));
+      Free;
+    end;
+  end;
+
+  procedure DrawSlideLine(Time, Left, Right: Integer);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      LoadFromFile('Pic\slideline.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      // bHeight := Trunc(bWidth / 2.55);
+      bLeft := Trunc(KeyWidth * (Left + 0.5));
+      bTop := Trunc((EndTime - Time) * (KeyCanval.Height /
+        (EndTime - BeginTime)));
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop,
+        bLeft + KeyWidth * (Right - Left), bTop + KeyHeight));
+      Free;
+    end;
+  end;
+
+  procedure DrawLongLine(lBeginTime, lEndTime, Track: Integer);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      LoadFromFile('Pic\longline.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      bHeight := Trunc((lEndTime - lBeginTime) *
+        (KeyCanval.Height / (EndTime - BeginTime)));
+      bTop := Trunc((EndTime - lEndTime) *
+        (KeyCanval.Height / (EndTime - BeginTime)) + KeyHeight / 2);
+      bLeft := Trunc(KeyWidth * Track);
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop, bLeft + KeyWidth,
+        bTop + bHeight));
+      Free;
+    end;
+  end;
+
+  procedure DrawSlideKey(Time, Track: Integer);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      LoadFromFile('Pic\long.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      // bHeight := Trunc(bWidth / 2.55);
+      bLeft := KeyWidth * Track;
+      bTop := Trunc((EndTime - Time) * (KeyCanval.Height /
+        (EndTime - BeginTime)));
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop, bLeft + KeyWidth,
+        bTop + KeyHeight));
+      Free;
+    end;
+  end;
+
+  procedure DrawLongKey(Time, Track: Integer);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      LoadFromFile('Pic\long.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      // bHeight := Trunc(bWidth / 2.55);
+      bLeft := KeyWidth * Track;
+      bTop := Trunc((EndTime - Time) * (KeyCanval.Height /
+        (EndTime - BeginTime)));
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop, bLeft + KeyWidth,
+        bTop + KeyHeight));
+      Free;
+    end;
+  end;
+
+  procedure DrawSlideArrow(Time, Track: Integer; Direction: Boolean);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      if Direction = ArrowLeft then
+        LoadFromFile('Pic\left.png')
+      else
+        LoadFromFile('Pic\right.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      // bHeight := Trunc(bWidth / 2.55);
+      bLeft := KeyWidth * Track;
+      bTop := Trunc((EndTime - Time) * (KeyCanval.Height /
+        (EndTime - BeginTime)));
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop, bLeft + KeyWidth,
+        bTop + KeyHeight));
+      Free;
+    end;
+  end;
+
+  procedure DrawPoint(Time, Track: Integer);
+  var
+    KeyBitMap: TPNGObject;
+    bHeight, bWidth, bLeft, bTop: Integer;
+  begin
+    KeyBitMap := TPNGObject.Create;
+    with KeyBitMap do
+    begin
+      LoadFromFile('Pic\point.png');
+      // bWidth := KeyCanval.Width div TrackCount;
+      // bHeight := Trunc(bWidth / 2.55);
+      bLeft := KeyWidth * Track;
+      bTop := Trunc((EndTime - Time) * (KeyCanval.Height /
+        (EndTime - BeginTime)));
+      // ShowMessage(IntToStr(bTop));
+      Draw(KeyCanval.Canvas, Rect(bLeft, bTop, bLeft + KeyWidth,
+        bTop + KeyHeight));
+      Free;
+    end;
+  end;
+
+begin
+  KeyCanval.Picture := nil;
+  ShowedKey.Clear;
+  i := 1;
+  while i <= Form1.KeyGrid.RowCount - 1 do
+  begin
+    with Form1.KeyGrid do
+    begin
+      try
+        kIsNoodle := StrToInt(Trim(Cells[1, i]));
+        kType := StrToInt(Trim(Cells[2, i]));
+        kTime := StrToInt(Trim(Cells[3, i]));
+        kTrack := StrToInt(Trim(Cells[4, i]));
+        kPara := StrToInt(Trim(Cells[5, i]));
+      except
+        Break;
+      end;
+      if kTime > EndTime + OverCanval then
+        Break;
+      if ((kType in [0, 1]) and (kTime < BeginTime)) or
+        ((kType = 2) and (kTime + kPara < BeginTime)) then
+      begin
+        i := i + 1;
+        Continue;
+      end;
+
+      if kIsNoodle = 0 then
+      begin
+        if kType = 0 then
+        begin
+          // if kTime > BeginTime then
+          begin
+            DrawTapKey(kTime, kTrack);
+            ShowedKey.Lines.Add(IntToStr(i));
+          end;
+        end
+        else if kType = 1 then
+        begin
+          // if kTime > BeginTime then
+          begin
+            if kPara > 0 then
+            begin
+              DrawSlideLine(kTime, kTrack, kTrack + kPara);
+              DrawSlideKey(kTime, kTrack);
+              DrawSlideArrow(kTime, kTrack + kPara, ArrowRight);
+            end
+            else if kPara < 0 then
+            begin
+              DrawSlideLine(kTime, kTrack + kPara, kTrack);
+              DrawSlideKey(kTime, kTrack);
+              DrawSlideArrow(kTime, kTrack + kPara, ArrowLeft);
+            end;
+            ShowedKey.Lines.Add(IntToStr(i));
+          end;
+        end
+        else if kType = 2 then
+        begin
+          // if kTime + kPara > BeginTime then
+          begin
+            DrawLongLine(kTime, kTime + kPara, kTrack);
+          end;
+          if kTime > BeginTime then
+          begin
+            DrawLongKey(kTime, kTrack);
+          end;
+          if kTime + kPara < EndTime + OverCanval then
+          begin
+            DrawPoint(kTime + kPara, kTrack);
+          end;
+          ShowedKey.Lines.Add(IntToStr(i));
+        end;
+      end
+      else
+      begin
+        m := i;
+        while kIsNoodle in [6, 2, 10] do
+        begin
+          if kType = 1 then
+          begin
+            // if kTime > BeginTime then
+            begin
+              if kPara > 0 then
+              begin
+                DrawSlideLine(kTime, kTrack, kTrack + kPara);
+              end
+              else if kPara < 0 then
+              begin
+                DrawSlideLine(kTime, kTrack + kPara, kTrack);
+              end;
+            end;
+            ShowedKey.Lines.Add(IntToStr(i));
+          end
+          else if kType = 2 then
+          begin
+            // if kTime + kPara > BeginTime then
+            begin
+              DrawLongLine(kTime, kTime + kPara, kTrack);
+            end;
+            ShowedKey.Lines.Add(IntToStr(i));
+          end;
+          i := i + 1;
+          if i > RowCount - 1 then
+            Break;
+          try
+            kIsNoodle := StrToInt(Trim(Cells[1, i]));
+            kType := StrToInt(Trim(Cells[2, i]));
+            kTime := StrToInt(Trim(Cells[3, i]));
+            kTrack := StrToInt(Trim(Cells[4, i]));
+            kPara := StrToInt(Trim(Cells[5, i]));
+          except
+            Break;
+          end;
+          if kTime > EndTime + OverCanval then
+            Break;
+        end;
+        i := i - 1;
+        for j := m to i do
+        begin
+          kIsNoodle := StrToInt(Trim(Cells[1, j]));
+          kType := StrToInt(Trim(Cells[2, j]));
+          kTime := StrToInt(Trim(Cells[3, j]));
+          kTrack := StrToInt(Trim(Cells[4, j]));
+          kPara := StrToInt(Trim(Cells[5, j]));
+          if kType = 1 then
+          begin
+            if kTime > BeginTime then
+            begin
+              if kIsNoodle = 6 then
+              begin
+                DrawSlideKey(kTime, kTrack);
+                DrawPoint(kTime, kTrack + kPara);
+              end
+              else if kIsNoodle = 2 then
+              begin
+                DrawPoint(kTime, kTrack);
+                DrawPoint(kTime, kTrack + kPara);
+              end
+              else if kIsNoodle = 10 then
+              begin
+                DrawPoint(kTime, kTrack);
+                if kPara > 0 then
+                  DrawSlideArrow(kTime, kTrack + kPara, ArrowRight)
+                else if kPara < 0 then
+                  DrawSlideArrow(kTime, kTrack + kPara, ArrowLeft);
+              end;
+            end;
+          end
+          else if kType = 2 then
+          begin
+            if kTime > BeginTime then
+            begin
+              if kIsNoodle = 6 then
+                DrawLongKey(kTime, kTrack)
+              else if kIsNoodle in [2, 10] then
+                DrawPoint(kTime, kTrack);
+            end;
+            if kTime + kPara < EndTime + OverCanval then
+            begin
+              DrawPoint(kTime + kPara, kTrack);
+            end;
+          end;
+        end;
+      end;
+    end;
+    i := i + 1;
+  end;
+  KeyCanval.Refresh;
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+  KeyWidth := KeyCanval.Width div TrackCount;
+  KeyHeight := Trunc(KeyWidth / 2.55);
+end;
+
+procedure TForm2.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  TimeLine.SetFocus;
+  TimeLine.Position := TimeLine.Position - WheelDelta * 10;
+end;
+
+var
+  Selected: Integer = 0;
+
+procedure TForm2.KeyCanvalMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+
+  function IsInKey(X, Y, KeyNum: Integer): Boolean;
+  var
+    bTop, bLeft, bHeight: Integer;
+    kIsNoodle, kType, kTime, kTrack, kPara: Integer;
+  begin
+    Result := False;
+    with Form1.KeyGrid do
+    begin
+      kIsNoodle := StrToInt(Trim(Cells[1, KeyNum]));
+      kType := StrToInt(Trim(Cells[2, KeyNum]));
+      kTime := StrToInt(Trim(Cells[3, KeyNum]));
+      kTrack := StrToInt(Trim(Cells[4, KeyNum]));
+      kPara := StrToInt(Trim(Cells[5, KeyNum]));
+    end;
+    case kType of
+      0:
+        begin
+          bLeft := KeyWidth * kTrack;
+          bTop := Trunc((StrToInt(EndTimeLabel.Caption) - kTime) *
+            (KeyCanval.Height / (StrToInt(EndTimeLabel.Caption) -
+            StrToInt(BeginTimeLabel.Caption))));
+          if (X >= bLeft) and (X < bLeft + KeyWidth) and (Y <= bTop + KeyHeight)
+            and (Y > bTop) then
+            Result := True
+        end;
+      1:
+        begin
+          bLeft := KeyWidth * kTrack;
+          bTop := Trunc((StrToInt(EndTimeLabel.Caption) - kTime) *
+            (KeyCanval.Height / (StrToInt(EndTimeLabel.Caption) -
+            StrToInt(BeginTimeLabel.Caption))));
+          if kPara > 0 then
+          begin
+            if (X >= bLeft) and (X < bLeft + KeyWidth * (kPara + 1)) and
+              (Y <= bTop + KeyHeight) and (Y > bTop) then
+              Result := True;
+          end
+          else if kPara < 0 then
+          begin
+            if (X >= bLeft + KeyWidth * kPara) and (X < bLeft + KeyWidth) and
+              (Y <= bTop + KeyHeight) and (Y > bTop) then
+              Result := True;
+          end;
+        end;
+      2:
+        begin
+          bHeight :=
+            Trunc(kPara * (KeyCanval.Height / (StrToInt(EndTimeLabel.Caption) -
+            StrToInt(BeginTimeLabel.Caption))));
+          bTop := Trunc((StrToInt(EndTimeLabel.Caption) - (kTime + kPara)) *
+            (KeyCanval.Height / (StrToInt(EndTimeLabel.Caption) -
+            StrToInt(BeginTimeLabel.Caption))));
+          bLeft := Trunc(KeyWidth * kTrack);
+          if (X >= bLeft) and (X < bLeft + KeyWidth) and
+            (Y <= bTop + bHeight + KeyHeight) and (Y > bTop) then
+            Result := True
+        end;
+    end;
+  end;
+
+  function ShiftDown: Boolean;
+  begin
+    if GetKeyState(VK_SHIFT) < 0 then
+      Result := True
+    else
+      Result := False;
+  end;
+
+var
+  i, j, KeyNum: Integer;
+  kType: Integer;
+
+begin
+  // ShowMessage(IntToStr(X) + #13#10 + IntToStr(Y));
+  case Button of
+    mbLeft:
+      begin
+        for i := 0 to ShowedKey.Lines.Count - 1 do
+        begin
+          KeyNum := StrToInt(ShowedKey.Lines[i]);
+          kType := StrToInt(Trim(Form1.KeyGrid.Cells[2, KeyNum]));
+          if kType in [0, 2] then
+            if IsInKey(X, Y, KeyNum) then
+            begin
+              // ShowMessage(ShowedKey.Lines[i]);
+              Form1.KeyGrid.Row := KeyNum;
+              if KeyNum = Selected then
+                Exit;
+              if Selected = 0 then
+                Selected := KeyNum
+              else
+              begin
+                if AddSlide(Selected, KeyNum) then
+                begin
+                  DrawTime(TimeLine.Max - TimeLine.Position,
+                    TimeLine.Max - TimeLine.Position +
+                    2500 div SpeedBar.Position);
+                  if ShiftDown then
+                    for i := 0 to ShowedKey.Lines.Count - 1 do
+                    begin
+                      KeyNum := StrToInt(ShowedKey.Lines[i]);
+                      kType := StrToInt(Trim(Form1.KeyGrid.Cells[2, KeyNum]));
+                      if kType in [0, 2] then
+                        if IsInKey(X, Y, KeyNum) then
+                        begin
+                          Selected := KeyNum
+                        end
+                        else
+                          Selected := 0;
+                    end
+                  else
+                    Selected := KeyNum;
+                end;
+                Break;
+              end;
+            end;
+        end;
+      mbRight:
+        begin
+          for i := 0 to ShowedKey.Lines.Count - 1 do
+          begin
+            KeyNum := StrToInt(ShowedKey.Lines[i]);
+            kType := StrToInt(Trim(Form1.KeyGrid.Cells[2, KeyNum]));
+            if kType = 1 then
+              if IsInKey(X, Y, KeyNum) then
+              begin
+                // ShowMessage(ShowedKey.Lines[i]);
+                Form1.KeyGrid.Row := KeyNum;
+                DeleteSlide(KeyNum);
+                DrawTime(TimeLine.Max - TimeLine.Position,
+                  TimeLine.Max - TimeLine.Position +
+                  2500 div SpeedBar.Position);
+                Break;
+              end;
+          end;
+        end;
+      end;
+  end;
+
+  procedure TForm2.PlayBtnClick(Sender: TObject);
+  begin
+    PlayTimer.Enabled := not PlayTimer.Enabled;
+  end;
+
+  procedure TForm2.PlayTimerTimer(Sender: TObject);
+  begin
+    TimeLine.Position := TimeLine.Position - PlayTimer.Interval;
+  end;
+
+  procedure TForm2.SpeedBarChange(Sender: TObject);
+  begin
+    DrawTime(TimeLine.Max - TimeLine.Position, TimeLine.Max - TimeLine.Position
+      + 2500 div SpeedBar.Position);
+    BeginTimeLabel.Caption := IntToStr(TimeLine.Max - TimeLine.Position);
+    EndTimeLabel.Caption := IntToStr(TimeLine.Max - TimeLine.Position +
+      2500 div SpeedBar.Position);
+  end;
+
+  procedure TForm2.TimeLineChange(Sender: TObject);
+  begin
+    DrawTime(TimeLine.Max - TimeLine.Position, TimeLine.Max - TimeLine.Position
+      + 2500 div SpeedBar.Position);
+    BeginTimeLabel.Caption := IntToStr(TimeLine.Max - TimeLine.Position);
+    EndTimeLabel.Caption := IntToStr(TimeLine.Max - TimeLine.Position +
+      2500 div SpeedBar.Position);
+  end;
+
+  procedure TForm2.TrackCountBarChange(Sender: TObject);
+  begin
+    TrackCount := TrackCountBar.Position;
+    KeyWidth := KeyCanval.Width div TrackCount;
+    KeyHeight := Trunc(KeyWidth / 2.55);
+    DrawTime(TimeLine.Max - TimeLine.Position, TimeLine.Max - TimeLine.Position
+      + 2500 div SpeedBar.Position);
+  end;
+
+  function TForm2.AddSlide(sBegin: Integer; sEnd: Integer): Boolean;
+  var
+    bIsNoodle, bType, bTime, bTrack, bPara: Integer;
+    eIsNoodle, eType, eTime, eTrack, ePara: Integer;
+    i, j, k: Integer;
+    st: string;
+    EndofEnd: Integer;
+  begin
+    Result := False;
+    with Form1.KeyGrid do
+    begin
+      bIsNoodle := StrToInt(Trim(Cells[1, sBegin]));
+      bType := StrToInt(Trim(Cells[2, sBegin]));
+      bTime := StrToInt(Trim(Cells[3, sBegin]));
+      bTrack := StrToInt(Trim(Cells[4, sBegin]));
+      bPara := StrToInt(Trim(Cells[5, sBegin]));
+      eIsNoodle := StrToInt(Trim(Cells[1, sEnd]));
+      eType := StrToInt(Trim(Cells[2, sEnd]));
+      eTime := StrToInt(Trim(Cells[3, sEnd]));
+      eTrack := StrToInt(Trim(Cells[4, sEnd]));
+      ePara := StrToInt(Trim(Cells[5, sEnd]));
+
+      if not((bIsNoodle in [0, 10]) and (eIsNoodle in [0, 6])) then
+        Exit;
+      if not(((bType = 2) and (Abs(bTime + bPara - eTime) <= 1)) or
+        ((bType = 0) and (Abs(bTime - eTime) <= 1))) then
+        Exit;
+
+      if bType = 2 then
+      begin
+        Cells[3, sEnd] := IntToStr(bTime + bPara);
+      end
+      else if bType = 0 then
+      begin
+        Cells[3, sEnd] := IntToStr(bTime);
+      end;
+
+      if sBegin > sEnd then
+      begin
+        for i := 1 to 5 do
+        begin
+          st := Cells[i, sBegin];
+          Cells[i, sBegin] := Cells[i, sEnd];
+          Cells[i, sEnd] := st;
+        end;
+        AddSlide(sEnd, sBegin);
+      end
+      else if sBegin < sEnd then
+      begin
+        if eIsNoodle = 6 then
+        begin
+          for i := sEnd to RowCount - 1 do
+            if StrToInt(Trim(Cells[1, i])) = 10 then
+              Break;
+          EndofEnd := i;
+          Cells[1, sEnd] := '2';
+          for i := sEnd to EndofEnd do
+            for j := 1 to 5 do
+            begin
+              st := Cells[j, i];
+              for k := i - 1 downto sBegin + 1 + (i - sEnd) do
+                Cells[j, k + 1] := Cells[j, k];
+              Cells[j, sBegin + 1 + (i - sEnd)] := st;
+            end;
+        end
+        else if eIsNoodle = 0 then
+        begin
+          Cells[1, sEnd] := '10';
+          for j := 1 to 5 do
+          begin
+            st := Cells[j, sEnd];
+            for i := sEnd - 1 downto sBegin + 1 do
+              Cells[j, i + 1] := Cells[j, i];
+            Cells[j, sBegin + 1] := st;
+          end;
+        end;
+        if bIsNoodle = 10 then
+        begin
+          Cells[1, sBegin] := '2';
+        end
+        else if bIsNoodle = 0 then
+        begin
+          Cells[1, sBegin] := '6';
+        end;
+        Row := sBegin;
+        if eType = 2 then
+        begin
+          if bType = 2 then
+          begin
+            Form1.AddBelowClick(nil);
+            Row := sBegin + 1;
+            Cells[1, Row] := '2';
+            Cells[2, Row] := '1';
+            Cells[3, Row] := IntToStr(bTime + bPara);
+            Cells[4, Row] := IntToStr(bTrack);
+            Cells[5, Row] := IntToStr(eTrack - bTrack);
+          end
+          else if bType = 0 then
+          begin
+            Cells[1, Row] := '6';
+            Cells[2, Row] := '1';
+            Cells[5, Row] := IntToStr(eTrack - bTrack);
+          end;
+        end
+        else if eType = 0 then
+        begin
+          if bType = 2 then
+          begin
+            Row := sBegin + 1;
+            Cells[1, Row] := '10';
+            Cells[2, Row] := '1';
+            Cells[3, Row] := IntToStr(bTime + bPara);
+            Cells[4, Row] := IntToStr(bTrack);
+            Cells[5, Row] := IntToStr(eTrack - bTrack);
+          end
+          else if bType = 0 then
+          begin
+            Cells[1, Row] := '0';
+            Cells[2, Row] := '1';
+            Cells[5, Row] := IntToStr(eTrack - bTrack);
+            Row := Row + 1;
+            Form1.DeleteLineClick(nil);
+          end;
+        end;
+      end;
+    end;
+    Form1.SortNote;
+    Result := True;
+  end;
+
+  procedure TForm2.DeleteSlide(KeyNum: Integer);
+  var
+    kIsNoodle, kType, kTime, kTrack, kPara: Integer;
+    lIsNoodle, nIsNoodle: Integer;
+  begin
+    with Form1.KeyGrid do
+    begin
+      kIsNoodle := StrToInt(Trim(Cells[1, KeyNum]));
+      kType := StrToInt(Trim(Cells[2, KeyNum]));
+      kTime := StrToInt(Trim(Cells[3, KeyNum]));
+      kTrack := StrToInt(Trim(Cells[4, KeyNum]));
+      kPara := StrToInt(Trim(Cells[5, KeyNum]));
+      lIsNoodle := StrToInt(Trim(Cells[1, KeyNum - 1]));
+      nIsNoodle := StrToInt(Trim(Cells[1, KeyNum + 1]));
+
+      Row := KeyNum;
+      case kIsNoodle of
+        0:
+          begin
+            Form1.AddBelowClick(nil);
+            Cells[2, KeyNum] := '0';
+            Cells[5, KeyNum] := '0';
+            Cells[1, KeyNum + 1] := '0';
+            Cells[2, KeyNum + 1] := '0';
+            Cells[3, KeyNum + 1] := IntToStr(kTime);
+            Cells[4, KeyNum + 1] := IntToStr(kTrack + kPara);
+            Cells[5, KeyNum + 1] := '0';
+          end;
+        6:
+          begin
+            Cells[1, KeyNum] := '0';
+            Cells[2, KeyNum] := '0';
+            Cells[5, KeyNum] := '0';
+            if nIsNoodle = 2 then
+              Cells[1, KeyNum + 1] := '6'
+            else if nIsNoodle = 10 then
+              Cells[1, KeyNum + 1] := '0';
+          end;
+        2:
+          begin
+            if lIsNoodle = 6 then
+            begin
+              Cells[1, KeyNum - 1] := '0';
+            end
+            else if lIsNoodle = 2 then
+            begin
+              Cells[1, KeyNum - 1] := '10';
+            end;
+
+            if nIsNoodle = 10 then
+            begin
+              Cells[1, KeyNum + 1] := '0';
+            end
+            else if nIsNoodle = 2 then
+            begin
+              Cells[1, KeyNum + 1] := '6';
+            end;
+
+            Form1.DeleteLineClick(nil);
+          end;
+        10:
+          begin
+            Cells[1, KeyNum] := '0';
+            Cells[2, KeyNum] := '0';
+            Cells[4, KeyNum] := IntToStr(kTrack + kPara);
+            Cells[5, KeyNum] := '0';
+            if lIsNoodle = 6 then
+            begin
+              Cells[1, KeyNum - 1] := '0';
+            end
+            else if lIsNoodle = 2 then
+            begin
+              Cells[1, KeyNum - 1] := '10';
+            end;
+          end;
+      end;
+    end;
+    Form1.SortNote;
+  end;
+
+end.

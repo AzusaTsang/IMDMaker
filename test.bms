@@ -1,0 +1,28 @@
+
+*---------------------- HEADER FIELD
+
+#PLAYER 1
+#GENRE 
+#TITLE 
+#ARTIST 
+#BPM 120
+#PLAYLEVEL 
+#RANK 3
+
+
+#LNTYPE 1
+
+
+
+*---------------------- MAIN DATA FIELD
+
+
+#00016:01
+
+#00103:3CB4
+#00116:0101
+
+#00203:F03C
+#00216:0101
+
+

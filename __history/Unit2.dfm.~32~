@@ -1,0 +1,117 @@
+object Form2: TForm2
+  Left = 0
+  Top = 0
+  Caption = #38754#26465#36830#25509#22120
+  ClientHeight = 661
+  ClientWidth = 669
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 106
+  TextHeight = 14
+  object Background: TShape
+    Left = 279
+    Top = 7
+    Width = 371
+    Height = 639
+  end
+  object KeyCanval: TImage
+    Left = 280
+    Top = 8
+    Width = 369
+    Height = 637
+    OnMouseDown = KeyCanvalMouseDown
+  end
+  object BeginTimeLabel: TLabel
+    Left = 171
+    Top = 634
+    Width = 95
+    Height = 19
+    Alignment = taRightJustify
+    Caption = 'BeginTimeLabel'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = #24494#36719#38597#40657
+    Font.Style = []
+    ParentFont = False
+  end
+  object EndTimeLabel: TLabel
+    Left = 182
+    Top = 8
+    Width = 84
+    Height = 19
+    Alignment = taRightJustify
+    Caption = 'EndTimeLabel'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = #24494#36719#38597#40657
+    Font.Style = []
+    ParentFont = False
+  end
+  object TimeLine: TTrackBar
+    Left = 32
+    Top = 16
+    Width = 45
+    Height = 621
+    Max = 30000
+    Orientation = trVertical
+    TabOrder = 0
+    OnChange = TimeLineChange
+  end
+  object SpeedBar: TTrackBar
+    Left = 96
+    Top = 224
+    Width = 150
+    Height = 45
+    Max = 4
+    Min = 1
+    Position = 1
+    TabOrder = 1
+    OnChange = SpeedBarChange
+  end
+  object PlayBtn: TButton
+    Left = 128
+    Top = 344
+    Width = 75
+    Height = 25
+    Caption = 'PlayBtn'
+    TabOrder = 2
+    OnClick = PlayBtnClick
+  end
+  object ShowedKey: TMemo
+    Left = 89
+    Top = 440
+    Width = 177
+    Height = 188
+    ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+    Lines.Strings = (
+      'ShowedKey')
+    ScrollBars = ssVertical
+    TabOrder = 3
+  end
+  object TrackCountBar: TTrackBar
+    Left = 96
+    Top = 72
+    Width = 150
+    Height = 45
+    Max = 6
+    Min = 4
+    Position = 4
+    TabOrder = 4
+    OnChange = TrackCountBarChange
+  end
+  object PlayTimer: TTimer
+    Enabled = False
+    Interval = 40
+    OnTimer = PlayTimerTimer
+    Left = 328
+    Top = 336
+  end
+end
